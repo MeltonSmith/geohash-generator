@@ -10,7 +10,7 @@ import com.streamsets.pipeline.api.StageDef;
 @StageDef(
         version = 1,
         label = "GeoHash Processor",
-        description = "Generates the geoHash for Latitude and Longitude",
+        description = "Generates the geoHash based on Latitude and Longitude",
         icon = "default.png",
         onlineHelpRefUrl = ""
 )

@@ -7,8 +7,8 @@ import com.streamsets.pipeline.api.ErrorCode;
  * Date: 09.03.2021
  */
 public enum Errors implements ErrorCode {
-    WRONG_LAT_OR_LONG("Cannot parse either Latitude or Longitude from the record: {}"),
-    NO_SUCH_FIELDS_FOR_LAT_OR_LONG("Can't find either {} or {}, among the fields for the record: {}"),
+    WRONG_FORMAT("Cannot parse a number from the field {} of the record: {}"),
+    NO_SUCH_FIELD("Can't find {}, among the fields for the record: {}"),
     ;
     private final String msg;
 

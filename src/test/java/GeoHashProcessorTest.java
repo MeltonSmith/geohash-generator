@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
-import static errors.Errors.NO_SUCH_FIELDS_FOR_LAT_OR_LONG;
-import static errors.Errors.WRONG_LAT_OR_LONG;
+import static errors.Errors.NO_SUCH_FIELD;
+import static errors.Errors.WRONG_FORMAT;
 import static org.junit.Assert.*;
 
 
@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class GeoHashProcessorTest {
 
     /**
-     * TODO
+     * Record contains only one field with a boolean value. Hence, the exception with "No such field" is expected.
      */
     @Test
     public void processWithNoSuchFields() {
@@ -33,12 +33,16 @@ public class GeoHashProcessorTest {
             Record record = RecordCreator.create();
             record.set(Field.create(true));
             OnRecordErrorException ex = assertThrows(OnRecordErrorException.class, () -> runner.runProcess(Collections.singletonList(record)));
-            assertEquals(NO_SUCH_FIELDS_FOR_LAT_OR_LONG, ex.getErrorCode());
+            assertEquals(NO_SUCH_FIELD, ex.getErrorCode());
         } finally {
             runner.runDestroy();
         }
     }
 
+    /**
+     * Record has a wrong value ("NA") instead of number.
+     * The "Wrong format" exception is expected.
+     */
     @Test
     public void processWithWrongCoordinates() {
         ProcessorRunner runner = getRunner();
@@ -53,12 +57,15 @@ public class GeoHashProcessorTest {
             record.set(processor.getLongitudePath(), Field.create("NA"));
 
             OnRecordErrorException ex = assertThrows(OnRecordErrorException.class, () -> runner.runProcess(Collections.singletonList(record)));
-            assertEquals(WRONG_LAT_OR_LONG, ex.getErrorCode());
+            assertEquals(WRONG_FORMAT, ex.getErrorCode());
         } finally {
             runner.runDestroy();
         }
     }
 
+    /**
+     * Processing two records with expected fields and values.
+     */
     @Test
     public void process() {
         ProcessorRunner runner = getRunner();
@@ -69,6 +76,7 @@ public class GeoHashProcessorTest {
 
             Record record1 = RecordCreator.create();
             record1.set(Field.create(new LinkedHashMap<>()));
+            record1.set("/Id", Field.create(123321L));
             record1.set(processor.getLatitudePath(), Field.create(43.2));
             record1.set(processor.getLongitudePath(), Field.create(-176));
 
@@ -83,6 +91,7 @@ public class GeoHashProcessorTest {
             assertEquals(2, output.getRecords().get("output").size());
             Record firstOutPut = output.getRecords().get("output").get(0);
             assertTrue(firstOutPut.has(processor.getGeoHashPath()));
+            assertEquals(firstOutPut.getEscapedFieldPaths().size(), 5);
             assertEquals(firstOutPut.get(processor.getGeoHashPath()).getValueAsString().length(), processor.getCharacterPrecision());
 
         } finally {

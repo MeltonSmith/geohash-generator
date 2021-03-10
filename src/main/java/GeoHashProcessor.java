@@ -24,46 +24,46 @@ public abstract class GeoHashProcessor extends SingleLaneRecordProcessor {
     public abstract String getGeoHashPath();
     public abstract String getLongitudePath();
 
-
-    /** {@inheritDoc} */
-    @Override
-    public void destroy() {
-        // Clean up any open resources.
-        super.destroy();
-    }
-
-    /** {@inheritDoc} */
+    /**
+     * Creates an additional field with geoHash inside of each record.
+     */
     @Override
     protected void process(Record record, SingleLaneProcessor.SingleLaneBatchMaker batchMaker) throws StageException {
-        Double latitude = null;
-        Double longitude = null;
-
-        //seek for lat and long
-        for (String fieldPath : record.getEscapedFieldPaths()) {
-            try {
-                if (fieldPath.equals(getLatitudePath()))
-                    latitude = record.get(fieldPath).getValueAsDouble();
-                else if (fieldPath.equals(getLongitudePath())) {
-                        longitude = record.get(fieldPath).getValueAsDouble();
-                }
-            } catch (IllegalArgumentException | NullPointerException ex) {
-                OnRecordErrorException onRecordErrorException = new OnRecordErrorException(record, Errors.WRONG_LAT_OR_LONG, record, ex);
-                LOG.error(onRecordErrorException.getMessage());
-                throw onRecordErrorException;
-            }
-        }
-
-        //no such fields
-        if (latitude == null || longitude == null) {
-            OnRecordErrorException onRecordErrorException = new OnRecordErrorException(record, Errors.NO_SUCH_FIELDS_FOR_LAT_OR_LONG, getLatitudePath(), getLongitudePath(), record);
-            LOG.error(onRecordErrorException.getMessage());
-            throw onRecordErrorException;
-        }
+        double latitude = extractCoordinateFromRecord(record, getLatitudePath());
+        double longitude = extractCoordinateFromRecord(record, getLongitudePath());
 
         String hash = GeoHash.geoHashStringWithCharacterPrecision(latitude, longitude, getCharacterPrecision());
         record.set(getGeoHashPath(), Field.create(hash));
         LOG.info("GeoHash generated for the record {}", record);
 
         batchMaker.addRecord(record);
+    }
+
+    /**
+     * Tries to fetch a double value for a specified path in the record.
+     *
+     * @param record we're work on
+     * @param path path for the field (either for latitude or longitude)
+     * @return double coordinate fetched from the record, always initialized
+     * @throws OnRecordErrorException when the record doesn't contain the field with such a path,
+     * or when the data in the field is wrong and cannot be parsed into double
+     */
+    private static double extractCoordinateFromRecord(Record record, String path) {
+        if (!record.has(path)){
+            OnRecordErrorException onRecordErrorException = new OnRecordErrorException(Errors.NO_SUCH_FIELD, path, record);
+            LOG.error(onRecordErrorException.getMessage());
+            throw onRecordErrorException;
+        }
+
+        double coordinate;
+        try{
+            coordinate  = record.get(path).getValueAsDouble();
+        }
+        catch (IllegalArgumentException | NullPointerException ex){
+            OnRecordErrorException onRecordErrorException = new OnRecordErrorException(Errors.WRONG_FORMAT, path, record);
+            LOG.error(onRecordErrorException.getMessage());
+            throw onRecordErrorException;
+        }
+        return coordinate;
     }
 }
