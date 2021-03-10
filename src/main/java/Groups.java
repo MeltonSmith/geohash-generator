@@ -7,7 +7,7 @@ import com.streamsets.pipeline.api.Label;
  */
 @GenerateResourceBundle
 public enum Groups implements Label {
-    GEOHASH("Geohash main config"),
+    GEOHASH("Geohash Main Config"),
     ;
 
     private final String label;

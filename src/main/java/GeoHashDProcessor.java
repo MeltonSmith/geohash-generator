@@ -55,7 +55,7 @@ public class GeoHashDProcessor extends GeoHashProcessor {
     @ConfigDef(
             required = true,
             type = ConfigDef.Type.STRING,
-            defaultValue = "GeoHash",
+            defaultValue = "/GeoHash",
             label = "Field name",
             description = "Field name to create in each record for geoHash",
             displayPosition = 10,
