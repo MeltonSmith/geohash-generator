@@ -59,7 +59,7 @@ public abstract class GeoHashProcessor extends SingleLaneRecordProcessor {
         try{
             coordinate  = record.get(path).getValueAsDouble();
         }
-        catch (IllegalArgumentException | NullPointerException ex){
+        catch (IllegalArgumentException ex){
             OnRecordErrorException onRecordErrorException = new OnRecordErrorException(Errors.WRONG_FORMAT, path, record);
             LOG.error(onRecordErrorException.getMessage());
             throw onRecordErrorException;

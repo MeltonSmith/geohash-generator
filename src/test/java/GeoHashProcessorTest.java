@@ -67,7 +67,7 @@ public class GeoHashProcessorTest {
      * Processing two records with expected fields and values.
      */
     @Test
-    public void process() {
+    public void processExpectedRecords() {
         ProcessorRunner runner = getRunner();
         runner.runInit();
 
