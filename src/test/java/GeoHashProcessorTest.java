@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class GeoHashProcessorTest {
 
     /**
-     * Record contains only one field with a boolean value. Hence, the exception with "No such field" is expected.
+     * The record contains only one field with a boolean value. Hence, the exception with "No such field" is expected.
      */
     @Test
     public void processWithNoSuchFields() {
@@ -40,7 +40,7 @@ public class GeoHashProcessorTest {
     }
 
     /**
-     * Record has a wrong value ("NA") instead of number.
+     * The record has a wrong value ("NA") instead of a number.
      * The "Wrong format" exception is expected.
      */
     @Test
