@@ -9,6 +9,7 @@ import com.streamsets.pipeline.api.ErrorCode;
 public enum Errors implements ErrorCode {
     WRONG_FORMAT("Cannot parse a number from the field {} of the record: {}"),
     NO_SUCH_FIELD("Can't find {}, among the fields of the record: {}"),
+    RECORD_IS_NULL("The record which is being processed is null"),
     ;
     private final String msg;
 

@@ -29,6 +29,12 @@ public abstract class GeoHashProcessor extends SingleLaneRecordProcessor {
      */
     @Override
     protected void process(Record record, SingleLaneProcessor.SingleLaneBatchMaker batchMaker) throws StageException {
+        if (record == null){
+            OnRecordErrorException recordIsNullEx = new OnRecordErrorException(Errors.RECORD_IS_NULL);
+            LOG.error(recordIsNullEx.getMessage());
+            throw recordIsNullEx;
+        }
+
         double latitude = extractCoordinateFromRecord(record, getLatitudePath());
         double longitude = extractCoordinateFromRecord(record, getLongitudePath());
 
@@ -42,7 +48,7 @@ public abstract class GeoHashProcessor extends SingleLaneRecordProcessor {
     /**
      * Tries to fetch a double value for a specified path in the record.
      *
-     * @param record we're work on
+     * @param record the record to process
      * @param path path for the field (either for latitude or longitude)
      * @return double coordinate fetched from the record, always initialized
      * @throws OnRecordErrorException when the record doesn't contain the field with such a path,
@@ -59,7 +65,7 @@ public abstract class GeoHashProcessor extends SingleLaneRecordProcessor {
         try{
             coordinate  = record.get(path).getValueAsDouble();
         }
-        catch (IllegalArgumentException ex){
+        catch (IllegalArgumentException | NullPointerException ex){
             OnRecordErrorException onRecordErrorException = new OnRecordErrorException(Errors.WRONG_FORMAT, path, record);
             LOG.error(onRecordErrorException.getMessage());
             throw onRecordErrorException;
